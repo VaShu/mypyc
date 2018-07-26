@@ -61,6 +61,7 @@ from mypyc.ops import (
     FuncDecl,
 )
 from mypyc.ops_primitive import binary_ops, unary_ops, func_ops, method_ops, name_ref_ops
+from mypyc.ops_int import unsafe_add
 from mypyc.ops_list import (
     list_append_op, list_extend_op, list_len_op, list_get_item_op, list_set_item_op, new_list_op,
 )
@@ -1118,7 +1119,7 @@ class IRBuilder(ExpressionVisitor[Value], StatementVisitor[None]):
             # Increment index register.
             one_reg = self.add(LoadInt(1))
             self.assign_to_target(index_target,
-                                  self.binary_op(index_reg, one_reg, '+', line), line)
+                                  self.primitive_op(unsafe_add, [index_reg, one_reg], line), line)
 
             # Go back to loop condition check.
             self.goto(condition_block)

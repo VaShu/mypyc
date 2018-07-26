@@ -2,9 +2,9 @@ from typing import List
 
 from mypyc.ops import (
     PrimitiveOp, int_rprimitive, bool_rprimitive, RType, EmitterInterface, OpDescription,
-    ERR_NEVER,
+    ERR_NEVER, unsafe_int_rprimitive
 )
-from mypyc.ops_primitive import binary_op, unary_op, simple_emit
+from mypyc.ops_primitive import binary_op, unary_op, simple_emit, custom_op
 
 
 def int_binary_op(op: str, c_func_name: str, result_type: RType = int_rprimitive) -> None:
@@ -32,6 +32,13 @@ int_compare_op('<', 'CPyTagged_IsLt')
 int_compare_op('<=', 'CPyTagged_IsLe')
 int_compare_op('>', 'CPyTagged_IsGt')
 int_compare_op('>=', 'CPyTagged_IsGe')
+
+unsafe_add = custom_op(
+    arg_types=[int_rprimitive, int_rprimitive],
+    result_type=unsafe_int_rprimitive,
+    error_kind=ERR_NEVER,
+    format_str='{dest} = {args[0]} +! {args[1]} :: int',
+    emit=simple_emit('{dest} = CPyTagged_AddUnsafe({args[0]}, {args[1]});'))
 
 
 def int_unary_op(op: str, c_func_name: str) -> OpDescription:
